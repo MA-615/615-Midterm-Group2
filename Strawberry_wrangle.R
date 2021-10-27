@@ -5,10 +5,10 @@ library(magrittr)
 
 data <- read_csv("Strawberries.csv")
 
+#Change ‘Program’ into binary variable： 1-CENSUS, 0-SURVEY
+data_1$Program <- ifelse(data_1$Program == 'CENSUS', 1, 0) 
 
-# data_1$Program <- ifelse(data_1$Program == 'CENSUS', 1, 0) #Change Program into binary variable 1-CENSUS, 0-SURVEY
-
-# Drop no useful data
+# Drop unuseful data
 drop_na_info <- function(df){
   cnames = colnames(data)
   T = NULL
@@ -20,9 +20,9 @@ drop_na_info <- function(df){
 drop_na_info(data)
 data_1 <- drop_na_info(data)
 
-# Seperate Data Item into 4 column
+# Separate Data Item into 4 column
 data_1 %<>% separate(col = 'Data Item',
-                    into = c("Strawberries", "Items", "Discription", "Units"),sep = ",",fill = "right")
+                     into = c("Strawberries", "Items", "Discription", "Units"),sep = ",",fill = "right")
 
 distinct(data_1, Strawberries)
 
@@ -45,40 +45,40 @@ distinct(data_1, Type)
 
 # make a copy of Domain Categoy
 
-data_1 %<>% 
-  mutate(Chemicals = 'Domain Category') %>% 
-  relocate(Chemicals, .after = 'Domain Category') 
-
-
-bb <- data_1$Chemicals %>% str_detect("CHEM")
-
-sum(bb)
+# data_1 %<>% 
+#   mutate(Chemicals = 'Domain Category') %>% 
+#   relocate(Chemicals, .after = 'Domain Category') 
+# 
+# 
+# bb <- data_1$Chemicals %>% str_detect("CHEM")
+# 
+# sum(bb)
 
 ## index 
-ind_C <- (!bb)*(1:dim(data_1)[1])
+# ind_C <- (!bb)*(1:dim(data_1)[1])
 
 ## 
-r1 <- ind_C[ind_C > 0]
+# r1 <- ind_C[ind_C > 0]
 
 ## set entries in Chemicals column to " " if they don't start with CHEM
 
-data_1$Chemicals[r1] <- " "
+# data_1$Chemicals[r1] <- " "
 
 # Seperate chemical 
-data_1 %<>% separate(col = Chemicals,
-                     into = c("title", "details"),
-                     sep = ":",
-                     fill = "right")
+# data_1 %<>% separate(col = Chemicals,
+#                      into = c("title", "details"),
+#                      sep = ":",
+#                      fill = "right")
+# 
+# data_1 %<>% mutate(details = str_extract(str_trim(details) ,"[^(].*[^)]") )
+# 
+# data_1 %<>% mutate(type = str_trim(Type))
+# 
+# distinct(data_1, details)
+# 
+# distinct(data_1, type)
 
-data_1 %<>% mutate(details = str_extract(str_trim(details) ,"[^(].*[^)]") )
-
-data_1 %<>% mutate(type = str_trim(Type))
-
-distinct(data_1, details)
-
-distinct(data_1, type)
-
-data_1 <- drop_na_infor(data_1)
+#data_1 <- drop_na_infor(data_1)
 
 
 
@@ -112,3 +112,26 @@ data_1 <- drop_na_infor(data_1)
 # chem_list <- rbind2(chem_list,distinct(data_1_other, details))
 # 
 # distinct(data_1, State)
+
+
+##Domain Category has some parts overlap with the previous information.
+##So I just extract the Chemicals name and number in this column.
+data_1 %<>% separate(col = `Domain Category`,
+                     into = c("Chemicals Name", "Number"),
+                     sep = "=",
+                     fill = "right")
+
+
+data_1$`Chemicals Name`<-str_replace(data_1$`Chemicals Name`,"\\)","")
+data_1$Number<-str_replace(data_1$Number,"\\)","")
+
+
+data_1 %<>% separate(col = `Chemicals Name`,
+                     into = c("unuse", "Chemicals Names"),
+                     sep = "\\(",
+                     fill = "left")
+data_1<-subset(data_1, select = -unuse )
+
+##Change the character type to a number
+data_1$Number<-as.numeric(data_1$Number)
+view(data_1)
