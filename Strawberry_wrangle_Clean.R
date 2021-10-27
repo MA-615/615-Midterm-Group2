@@ -61,3 +61,13 @@ drop_na_info(data_1)
 #####################################################################
 # Final outcome
 view(data_1)
+
+#####################################################################
+unique(data_1$`Chemicals Names`)
+#need to filter table to only show the five chemicals we have in Pesti
+Strawberry <- data_1 %>%
+  filter(`Chemicals Names` == "BIFENTHRIN " | `Chemicals Names` == "MALATHION " | 
+           `Chemicals Names` == "DICHLORVOS (DDVP) " | 
+           `Chemicals Names` == "CARBARYL " | `Chemicals Names` == "DIMETHOATE ")
+# there is a space after the chemical name in the data_1 table so need to make 
+# sure you include that in the filter

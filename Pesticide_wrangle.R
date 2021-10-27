@@ -10,6 +10,9 @@ Pesticides <- read_csv("Pesticides.csv")
 
 #Tidy table
 Pesti <- Pesticides %>%
-  filter(Carcinogen == "known" | Carcinogen == "possible" | Carcinogen == "probable") %>%
+  filter(Carcinogen == "known" | Carcinogen == "possible" | 
+           Carcinogen == "probable") %>%
   filter(`Hormone Disruptor` =="suspected") %>%
   filter(`Bee Toxins`=="high")
+
+Pesti <- Pesti %>% rename('Chemical Name' = Pesticide )
