@@ -9,7 +9,7 @@ data <- read_csv("Strawberries.csv")
 # data_1$Program <- ifelse(data_1$Program == 'CENSUS', 1, 0) #Change Program into binary variable 1-CENSUS, 0-SURVEY
 
 # Drop no useful data
-drop_no_info_cols <- function(df){
+drop_na_info <- function(df){
   cnames = colnames(data)
   T = NULL
   for(i in 1:ncol(df)){T <- c(T, nrow(unique(df[i])))}
@@ -17,8 +17,8 @@ drop_no_info_cols <- function(df){
   return(select(df, !all_of(drop_cols)))
 }
 
-drop_no_info_cols(data)
-data_1 <- drop_no_info_cols(data)
+drop_na_info(data)
+data_1 <- drop_na_info(data)
 
 # Seperate Data Item into 4 column
 data_1 %<>% separate(col = 'Data Item',
@@ -78,7 +78,7 @@ distinct(data_1, details)
 
 distinct(data_1, type)
 
-data_1 <- drop_no_info_cols(data_1)
+data_1 <- drop_na_infor(data_1)
 
 
 
