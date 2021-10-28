@@ -71,3 +71,10 @@ Strawberry <- data_1 %>%
            `Chemicals Names` == "CARBARYL " | `Chemicals Names` == "DIMETHOATE ")
 # there is a space after the chemical name in the data_1 table so need to make 
 # sure you include that in the filter
+
+#####################################################################
+data_1 %>%
+  count(`Chemicals Names`) %>%
+  knitr::kable()
+
+# show up the type and frequency of chemicals names which is the first list of Pesticide.csv
