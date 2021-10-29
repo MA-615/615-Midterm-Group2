@@ -1,0 +1,18 @@
+---
+title: "Visualization"
+author: "Group 2"
+date: "10/25/2021"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+#look at year, state, pesticide, carcinogen, bee toxin
+
+```{r}
+Cali<- ggplot(california) + geom_point(aes( x= Carcinogen, y= Pesticide )) + labs(title= 'California')
+Cali
+```
+

@@ -23,3 +23,5 @@ data_join<-inner_join(data2,Pesti2)
 ##write and save the merge data
 write.csv(data_join, "data_join.csv")
 
+##break up by state
+california <- data_join %>% filter(State == "CALIFORNIA")
