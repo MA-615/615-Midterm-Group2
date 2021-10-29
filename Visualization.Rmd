@@ -7,12 +7,22 @@ output: ioslides_presentation
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+pacman::p_load('ggplot2', 'plotly')
 ```
 
 #look at year, state, pesticide, carcinogen, bee toxin
 
 ```{r}
 Cali<- ggplot(california) + geom_point(aes( x= Carcinogen, y= Pesticide )) + labs(title= 'California')
-Cali
+ggplotly(Cali)
+```
+```{r}
+Florida <- ggplot(florida) + geom_point(aes( x= Carcinogen, y= Pesticide )) + labs(title= 'Florida')
+ggplotly(Florida)
+```
+
+```{r}
+Wash <- ggplot(washington) + geom_point(aes( x= Carcinogen, y= Pesticide )) + labs(title= 'Washington')
+ggplotly(Wash)
 ```
 
