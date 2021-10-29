@@ -18,5 +18,8 @@ data2<- rename(data2,Pesticide=12)
 Pesti2$Pesticide<-toupper(Pesti2$Pesticide)
 
 ##inner join two data tables
-data<-inner_join(data2,Pesti2)
+data_join<-inner_join(data2,Pesti2)
+
+##write and save the merge data
+write.csv(data_join, "data_join.csv")
 
