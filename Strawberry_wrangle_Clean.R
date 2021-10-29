@@ -78,3 +78,7 @@ data_1 %>%
   knitr::kable()
 
 # show up the type and frequency of chemicals names which is the first list of Pesticide.csv
+
+#####################################################################
+##write and save this data frame 
+write.csv(data_1, "cleanstr.csv")
