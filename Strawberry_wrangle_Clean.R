@@ -81,4 +81,5 @@ data_1 %>%
 
 #####################################################################
 ##write and save this data frame 
-write.csv(data_1, "cleanstr.csv")
+write.csv(data_1, "cleanstr.csv",row.names = F)
+

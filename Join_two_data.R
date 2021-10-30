@@ -9,7 +9,6 @@ Pesti2 <- Pesticides %>% filter(!is.na(Pesticide))
 ##This is the data from Strawberry_wrangle_clean
 data2 <- read_csv("cleanstr.csv")
 
-data2<-data2[,-1]
 
 ##Rename to make two data frame has the same line title "Pesticide".
 data2<- rename(data2,Pesticide=12)
@@ -20,8 +19,12 @@ Pesti2$Pesticide<-toupper(Pesti2$Pesticide)
 ##inner join two data tables
 data_join<-inner_join(data2,Pesti2)
 
+#delete some columns
+data_join<-data_join[,c(-1,-3,-6,-10,-15)]
+
 ##write and save the merge data
-write.csv(data_join, "data_join.csv")
+write.csv(data_join, "data_join.csv",row.names=F)
 
 ##break up by state
 california <- data_join %>% filter(State == "CALIFORNIA")
+
