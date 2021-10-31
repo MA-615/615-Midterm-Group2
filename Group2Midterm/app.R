@@ -1,49 +1,43 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
+library(tidyverse)
+library(ggplot2)
 
-# Define UI for application that draws a histogram
+# what pesticides do each state use and how toxic are they?
+df <- read.csv("data/final.csv")
+
+states <- c("NEW YORK", "WASHINGTON", "OREGON", "NORTH CAROLINA", "CALIFORNIA", "FLORIDA")
+
+
+# UI 
 ui <- fluidPage(
-
-    # Application title
-    titlePanel("Old Faithful Geyser Data"),
-
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-           plotOutput("distPlot")
-        )
-    )
+  selectInput("state", "Please Select the State", states),
+  tableOutput("table")
 )
 
-# Define server logic required to draw a histogram
-server <- function(input, output) {
 
-    output$distPlot <- renderPlot({
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
-    })
+# Server
+# Server function has some problem and I did not fix it. Hopefully someone can help.
+server <- function(input, output, session) {
+  input$state <- renderText(input$state)
+  if(input$state == "CALIFORNIA") {
+    df1 <- df %>% filter(df$State == "CALIFORNIA")
+    output$table <- renderTable(df1)
+  } else if (input$state == "NEW YORK") {
+    df2 <- df %>% filter(df$State == "NEW YORK")
+    output$table <- renderTable(df2) 
+  } else if (input$state == "WASHINGTON") {
+    df3 <- df %>% filter(df$State == "WASHINGTON")
+    output$table <- renderTable(df3) 
+  } else if (input$state == "OREGON") {
+    df4 <- df %>% filter(df$State == "OREGON")
+    output$table <- renderTable(df4) 
+  } else if (input$state == "NORTH CAROLINA") {
+    df5 <- df %>% filter(df$State == "NORTH CAROLINA")
+    output$table <- renderTable(df5) 
+  } else if (input$state == "FLORIDA") {
+    df6 <- df %>% filter(df$State == "FLORIDA")
+    output$table <- renderTable(df6) 
+  } else stop("Warning")
 }
 
-# Run the application 
-shinyApp(ui = ui, server = server)
+shinyApp(ui, server)
