@@ -13,17 +13,9 @@ pacman::p_load('ggplot2', 'plotly')
 #look at year, state, pesticide, carcinogen, bee toxin
 what pesticides do each state use and how toxic are they?
 
-```{r}
-Cali<- ggplot(california) + geom_point(aes( x= Carcinogen, y= Pesticide )) + labs(title= 'California')
-ggplotly(Cali)
-```
-```{r}
-Florida <- ggplot(florida) + geom_point(aes( x= Carcinogen, y= Pesticide )) + labs(title= 'Florida')
-ggplotly(Florida)
-```
 
 ```{r}
-Wash <- ggplot(washington) + geom_point(aes( x= Carcinogen, y= Pesticide )) + labs(title= 'Washington')
-ggplotly(Wash)
+Plot <- ggplot(strawbPesti) + geom_point(aes (x= State, y= `Chemical Name`, color= Carcinogen)) + labs(title= 'How Toxic are the chemicals on strawberries?')
+ggplotly(Plot)
 ```
 
