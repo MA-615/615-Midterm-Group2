@@ -7,11 +7,21 @@ output: ioslides_presentation
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
-pacman::p_load('ggplot2', 'plotly')
+pacman::p_load('ggplot2', 'plotly', 'dplyr')
 ```
 
 #look at year, state, pesticide, carcinogen, bee toxin
 what pesticides do each state use and how toxic are they?
+```{r}
+size <- filter(strawbPesti, Discription == " MEASURED IN LB")
+```
+
+```{r}
+Plot <- ggplot(size) + geom_point(aes (x= State, y= `Chemical Name`, color= `Human Toxins`, size= Value)) + labs(title= 'How Toxic are the chemicals on strawberries for humans?') + scale_color_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73")) + theme_classic()
+#colors used are from the color blind palette
+ggplotly(Plot)
+#add a note about how we determined human toxins
+```
 
 
 ```{r}
