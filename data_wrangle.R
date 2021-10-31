@@ -1,89 +1,95 @@
 library(tidyverse)
 library(magrittr)
+library(dplyr)
 
 # Original data input
-data1 <- read_csv("data/Strawberries.csv")
-data2 <- read_csv("data/Pesticides.csv")
+strawb <- read_csv("data/Strawberries.csv")
+pesti <- read_csv("data/Pesticides.csv")
 
 #####################################################################
-# data cleaning
+# data cleaning about strwb
+## drop columns which have only one value
 drop_na_info <- function(df){
-  # df <- data1
+ # df <- strawb
   cnames = colnames(df)
   T = NULL
   for(i in 1:ncol(df)){T <- c(T, nrow(unique(df[i])))}
   drop_cols <- cnames[which(T == 1)]
-  return(select(df, !all_of(drop_cols)))
+  return(dplyr::select(df, !all_of(drop_cols)))
 }
 
-data1.1 <- drop_na_info(data1)
+strawb1 <- drop_na_info(strawb)
 
-# Separate Data Item into 4 column
-data1.1 %<>% separate(col = 'Data Item', into = c("Strawberries", "Items", "Discription", "Units"),sep = ",",fill = "right")
+## Separate Data Item into 4 column
+strawb1 %<>% separate(col = 'Data Item', into = c("Strawberries", "Items", "Discription", "Units"),sep = ",",fill = "right")
 
-distinct(data1.1, Strawberries)
+distinct(strawb1, Strawberries)
 
-distinct(data1.1, Items)
+distinct(strawb1, Items)
 
-distinct(data1.1, Discription)
+distinct(strawb1, Discription)
 
-distinct(data1.1, Units)
+distinct(strawb1, Units)
 
-
+distinct(strawb1,`Domain Category`)
 # Separate the domain
-data1.1 %<>% separate(col = Domain, into = c("Title", "Details"), sep = ":", fill = "right")
+strawb1 %<>% separate(col = Domain, into = c("dname", "type"), sep = ",", fill = "right")
 
-distinct(data1.1, Title)
+distinct(strawb1, dname)
 
-distinct(data1.1, Details)
+distinct(strawb1, type)
 
-data1.1 %<>% select(-Details)
+#strawb1 %<>% select(-Details)
 
 # Separate Domain Category
-data1.1 %<>% 
+strawb1 %<>% 
   mutate(Chemicals = `Domain Category`) %>%
   relocate(Chemicals, .after = `Domain Category`)
 
-data1.1 %<>% 
+strawb1 %<>% 
   separate(Chemicals, into =c('Title', 'Details'), sep = ":", fill = "right")
 
-data1.1$Details <- str_replace(data1.1$Details, "\\(", "")
-data1.1$Details <- str_replace(data1.1$Details, "\\)", "")
+distinct(strawb1, Details)
 
-data1.1 %<>% 
+strawb1$Details <- str_replace(strawb1$Details, "\\(", "")
+strawb1$Details <- str_replace(strawb1$Details, "\\)", "")
+
+strawb1 %<>% 
   separate(Details, into = c('Chemical Name', "Number"), sep = "=", fill = "right")
 
-distinct(data1.1, `Chemical Name`)
-distinct(data1.1, Number)
+distinct(strawb1, `Chemical Name`)
+distinct(strawb1, Number)
 
 # Delete empty space
-data1.1$`Chemical Name` <- str_trim(data1.1$`Chemical Name`)
+strawb1$`Chemical Name` <- str_trim(strawb1$`Chemical Name`)
 
-data1.1 %<>% select(-c(Strawberries, `Domain Category`))
-data1.1 <- drop_na_info(data1.1)
-
+drops <- c("Strawberries", "Domain Category")
+strawb1 <- strawb1[ , !(names(strawb1) %in% drops)]
 
 # Pesticides 
-data2.1 <- data2 %>% rename('Chemical Name' = Pesticide )
+pesti1 <- pesti %>% rename('Chemical Name' = Pesticide )
 
-data2.1 %<>% filter(!is.na(data2.1))
+pesti1 %<>% filter(!is.na(pesti1))
 
-data2.1$`Chemical Name` <- toupper(data2.1$`Chemical Name`)
-
-data2.1 <- data2.1 %>% mutate('Human Toxins' = NA)
+pesti1$`Chemical Name` <- toupper(pesti1$`Chemical Name`)
 
 # Define Human Toxins level
-# high toxic for human: carcinogen = known
-# moderate toxic for human: carcinogen = probable
-# slight toxic for human: carcinogen= possible/NA
-data2.1$`Human Toxins` <- ifelse(data2.1$Carcinogen == "known", "high", 
-                                 ifelse(data2.1$Carcinogen == "possible", "slight", 
-                                        ifelse(data2.1$Carcinogen == "possible", "slight", NA)))
-# Also can use for loop? (did not success)
+# high toxic for human: carcinogen = known or Neurotoxins/`Developmental or Reproductive Toxins` = present
+# moderate toxic for human: carcinogen = probable/possible and `Hormone Disruptor` = suspect
+# slight toxic for human: carcinogen= possible/possible or `Hormone Disruptor` = suspect, only one happens
+pesti1 <- pesti1 %>% mutate('Human Toxins' = case_when(
+  pesti1$Carcinogen == "known" | pesti1$Neurotoxins== "present" | pesti1$`Developmental or Reproductive Toxins`== "present" ~ "high" ,
+  pesti1$Carcinogen == "possible" & pesti1$`Hormone Disruptor`=="suspected" & is.na(pesti1$Neurotoxins) & is.na(pesti1$`Developmental or Reproductive Toxins`)~ "moderate",
+  pesti1$Carcinogen == "possible" & is.na(pesti1$`Hormone Disruptor`) & is.na(pesti1$Neurotoxins) & is.na(pesti1$`Developmental or Reproductive Toxins`)~ "slight",
+  pesti1$Carcinogen == "probable" & is.na(pesti1$`Hormone Disruptor`) & is.na(pesti1$Neurotoxins) & is.na(pesti1$`Developmental or Reproductive Toxins`)~ "slight",
+  is.na(pesti1$Carcinogen) & pesti1$`Hormone Disruptor`=="suspected" & is.na(pesti1$Neurotoxins) & is.na(pesti1$`Developmental or Reproductive Toxins`)~"slight"
+))
+                                      
+# Also can use for loop? 
 
 #####################################################################
 # Combine two dataset
-join <- full_join(data1.1, data2.1)
+strwbPesti <- left_join(strawb1, pesti1,by="Chemical Name")
 
 # Write the dataset into csv.
 # write_csv(join, "final.csv")
