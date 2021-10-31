@@ -89,10 +89,10 @@ pesti1 <- pesti1 %>% mutate('Human Toxins' = case_when(
 
 #####################################################################
 # Combine two dataset
-strwbPesti <- left_join(strawb1, pesti1,by="Chemical Name")
+strawbPesti <- left_join(strawb1, pesti1,by="Chemical Name")
 
 # Write the dataset into csv.
-# write_csv(join, "final.csv")
+write_csv(strawbPesti, "strawbPesti.csv")
 
 
 
