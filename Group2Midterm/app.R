@@ -1,45 +1,57 @@
 library(shiny)
-library(tidyverse)
-library(ggplot2)
 
-# what pesticides do each state use and how toxic are they?
-states <- c("WASHINGTON", "OREGON", "CALIFORNIA", "FLORIDA")
 
+# What pesticides do each state use and how toxic are they?
+
+# source("data_wrangle.R")
+load("data/final.rda")
+strawbPesti$Year <- as.character(strawbPesti$Year)
 
 # UI 
 ui <- fluidPage(
+  titlePanel("Strawberry Data"),
+  navlistPanel(
   
-  # Indicate the State
-  selectInput(inputId = "state", label = "Please Select the State", states),
+    # Title 1 for the section 
+    "Data",  
   
-  # Setup table output
-  tableOutput('table')
+     # Subtitle 1:
+      tabPanel("About", h3("Introduction of Dataset")),
+  
+     # Subtitle 2:
+      tabPanel("Table",
+  
+      # input indicator:
+        selectInput(inputId = "state", label = "Please Select the State", c("All",unique(strawbPesti$State))),
+        selectInput("year", "Year", c("All", unique(strawbPesti$Year))),
+      
+      # output dataset
+        dataTableOutput('table1')),
+    "Plot"
+    )
 )
 
 
 # Server
-# Server function has some problem and I did not fix it. Hopefully someone can help.
-server <- function(input, output, session) {
- 
-  # Data output in table formate
-  output$table <- renderTable(
-   if (input$state == "CALIFORNIA") {
-     df1 <- strawbPesti %>% filter(strawbPesti$State == input$state)
-     return(df1)
-   } else if (input$state == "WASHINGTON") {
-     df2 <- strawbPesti %>% filter(strawbPesti$State == input$state)
-     return(df2)
-   } else if (input$state == "OREGON") {
-     df3 <- strawbPesti %>% filter(strawbPesti$State == input$state)
-     return(df3)
-   } else {
-     df4 <- strawbPesti %>% filter(strawbPesti$State == input$state)
-     return(df4)
-   }
- )
- 
- 
- 
-}
 
+server <- function(input, output, session) {
+ data <- strawbPesti
+ 
+   # Data output in table format
+   output$table1 <- renderDataTable({
+     if (input$state != "All") {
+       data <- data[data$State == input$state,]
+     }
+     if (input$year != "All") {
+       data <- data[data$Year == input$year,]
+     }
+     return(data)
+   }
+   )
+}
+# Debug
+# runApp("Group2Midterm/app.R", display.mode = "showcase")
+
+# Running the app.
 shinyApp(ui, server)
+
