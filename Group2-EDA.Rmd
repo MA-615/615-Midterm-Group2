@@ -191,8 +191,13 @@ pestiToxin <- function(state1){
   bar <- ggplot(data)+
   geom_bar(mapping = aes(x=`Chemical Name`,y=Value,fill=`Human Toxins`), position = "dodge",stat = "identity")+
   scale_fill_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73"))+
+    labs(title = state1)+
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  bar2 <- ggplot(data)+
+  geom_bar(mapping = aes(x=`Chemical Name`,y=Value,fill=`Human Toxins`), position = "dodge",stat = "identity")+
+  scale_fill_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73"))+
     labs(title = state1)
-  list(bar,ggplotly(bar), bar+coord_polar())
+  list(bar,ggplotly(bar), bar2+coord_polar())
 }
 
 pestiToxin("CALIFORNIA")
