@@ -167,35 +167,7 @@ write_csv(strawbPesti, "strawbPesti.csv")
 Combine two dataset into strawbPesti.csv by key column 'Chemical Name'. Only keep rows with known pesticides.
 
 
-# Data Visualization
-
-```{r,message=FALSE}
-pacman::p_load('ggplot2', 'plotly',"dplyr")
-```
-
-## clean strawbPesti.csv
-```{r,message=FALSE}
-distinct(strawbPesti,State)
-strawbPesti <- arrange(strawbPesti,`Chemical Name`)
-#colnames(strawbPesti)
-strawbPesti1 <- strawbPesti[,-13]
-strawbPesti2 <- strawbPesti1[,c(2,4,7,12,13,20)]
-strawbPesti3 <- filter(strawbPesti2, Discription==" MEASURED IN LB")
-strawbPesti4 <- filter(strawbPesti3, Value !="(D)")
-strawbPesti4$Value <- as.numeric(sub(",", "", strawbPesti4$Value, fixed = TRUE))
-
-strawbPestiAVG <- strawbPesti4 %>%
-  group_by(State, `Chemical Name`,`Human Toxins`) %>%
-  summarise(Value,Value=mean(Value))
-```
-Only choose columns we will use: 'Year', 'State', 'Discription', 'Chemical Name', 'Value', 'Human Toxins'. Which is dataset "strawbPesti2".
-
-We can see from strawbPesti2, values are different depend on measured methods for each chemical type in each state, so we can choose one method to go deep, finally we chose "MEASURED IN LB". Then we get dataset "strawbPesti3".
-
-Then we drop no meaning rows of value. And change value into numeric variable. Finally we get dataset "strawbPesti4".
-
-To compare pesticides' toxin level, we can take average value across 2016-1019. We build dataset "strawbPestiAVG".
-
+# Construct maps 
 
 ## Map of states in USA 
 There are only four states used in data sets, which are shown in colors on the map of the United States.
@@ -234,14 +206,60 @@ map("California")
 
 # Pose Questions and Conclusions
 
-### How Toxic are the chemicals on strawberries for humans?
+## What pesticides do each state use and how toxic are they?
 
-### How Toxic are the chemicals on strawberries for bees?
+This issue is what our team members intend to start studying. Because the main content of the pesticide file is the toxins of pesticides, we began to study the degree of toxins to humans.
 
-These two issues are what our team members intend to start studying. Because the main content of the pes file is the toxins of pesticides, we began to study the degree of toxins to humans and to bees.
+## Preparation for data visualization
+```{r,message=FALSE}
+pacman::p_load('ggplot2', 'plotly',"dplyr")
+```
+
+### clean strawbPesti.csv
+```{r,message=FALSE}
+distinct(strawbPesti,State)
+strawbPesti <- arrange(strawbPesti,`Chemical Name`)
+#colnames(strawbPesti)
+strawbPesti1 <- strawbPesti[,-13]
+strawbPesti2 <- strawbPesti1[,c(2,4,7,12,13,20)]
+strawbPesti3 <- filter(strawbPesti2, Discription==" MEASURED IN LB")
+strawbPesti4 <- filter(strawbPesti3, Value !="(D)")
+strawbPesti4$Value <- as.numeric(sub(",", "", strawbPesti4$Value, fixed = TRUE))
+
+strawbPestiAVG <- strawbPesti4 %>%
+  group_by(State, `Chemical Name`,`Human Toxins`) %>%
+  summarise(Value,Value=mean(Value))
+```
+Only choose columns we will use: 'Year', 'State', 'Discription', 'Chemical Name', 'Value', 'Human Toxins'. Which is dataset "strawbPesti2".
+
+We can see from strawbPesti2, values are different depend on measured methods for each chemical type in each state, so we can choose one method to go deep, finally we chose "MEASURED IN LB". Then we get dataset "strawbPesti3".
+
+Then we drop no meaning rows of value. And change value into numeric variable. Finally we get dataset "strawbPesti4".
+
+To compare pesticides' toxin level, we can take average value across 2016-1019. We build dataset "strawbPestiAVG".
+
+## How Toxic are the chemicals on strawberries for humans and bees?
+
+Then let’s look at more specific issues.
+According to the colors shown in the pictures, the hazards of various chemicals can be seen. 
+
+```{r}
+Plot <- ggplot(strawbPesti) + geom_point(aes (x= State, y= `Chemical Name`, color= `Human Toxins`)) + labs(title= 'How Toxic are the chemicals on strawberries for humans?') + scale_color_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73")) 
+#colors used are from the color blind palette
+Plot
+#add a note about how we determined human toxins
+```
+
+```{r}
+Plot1 <- ggplot(strawbPesti) + geom_point(aes (x= State, y= `Chemical Name`, color= `Bee Toxins`)) + labs(title= 'How Toxic are the chemicals on strawberries for bees?') + scale_color_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73"))
+Plot1
+```
 
 ## show all states chemical usage value
-Compared with other states, California has more data, so there are more samples with vlue as high, while Washington state has less data. It can be seen from the figure that the pesticides that are more harmful to humans are mainly distributed in California and Florida.
+From the following plot, we can see California and Florida have relatively more points, that means California and Florida used relatively more kinds of pesticides in 2016-2019, and we can also see the values of these pesticides from this plot. At the same time, Washington state used only two kinds of pesticides through 2016-2019. 
+
+It also can be seen from the figure is that the pesticides are harmful to humans are only used in California and Florida.
+
 ```{r,message=FALSE}
 ggplot(strawbPestiAVG) + 
   geom_point(aes( x= `Chemical Name`, y= Value,col=`Human Toxins`)) + 
@@ -252,7 +270,7 @@ ggplot(strawbPestiAVG) +
 
 ## Chemical usage in different states 
 
-Take California as an example, and list the data graph and plot.
+To see the details of pesticides usage in specific state, we set a function to show different State's pesticides usage and how toxin they are. 
 ```{r,message=FALSE}
 ## choose input by yourself
 pestiToxin <- function(state1){
@@ -270,26 +288,12 @@ pestiToxin <- function(state1){
 }
 
 pestiToxin("CALIFORNIA")
-```
-
-## How Toxic are the chemicals on strawberries for humans?
-Then let’s look at more specific issues.
-According to the colors shown in the pictures, the hazards of various chemicals can be seen. 
-
-```{r}
-Plot <- ggplot(strawbPesti) + geom_point(aes (x= State, y= `Chemical Name`, color= `Human Toxins`)) + labs(title= 'How Toxic are the chemicals on strawberries for humans?') + scale_color_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73")) 
-#colors used are from the color blind palette
-Plot
-#add a note about how we determined human toxins
+pestiToxin("FLORIDA")
+pestiToxin("WASHINGTON")
 ```
 
 
-## How Toxic are the chemicals on strawberries for bees?
 
-```{r}
-Plot1 <- ggplot(strawbPesti) + geom_point(aes (x= State, y= `Chemical Name`, color= `Bee Toxins`)) + labs(title= 'How Toxic are the chemicals on strawberries for bees?') + scale_color_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73"))
-Plot1
-```
 
 # Summary
 
