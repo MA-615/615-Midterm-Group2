@@ -1,5 +1,5 @@
 ---
-title: "Group2-EDA"
+title: "Group2-PDF"
 author: "Shuting Li, Lauren Marie, Zening Ye, Keliang Xu"
 date: "10/25/2021"
 output: pdf_document
@@ -11,18 +11,20 @@ webshot::install_phantomjs()
 library(tidyverse)
 library(magrittr)
 library(dplyr)
+library(maps)
 ```
 
 # Clean data
-
+We have three data files -- strawberries, insecticides, and herbicides-fungicides-other. The first two data files are used as data basis of our project, and the third one is the backgroud information we need in the project.
 ## import original data
+
 ```{r,message=FALSE}
 strawb <- read_csv("data/Strawberries.csv")
 pesti <- read_csv("data/Pesticides.csv")
 ```
 
 ## data cleaning about strawb.csv
-
+There may be missing data during data collection process. In this case, we delete the NA conditions to ensure the accuracy of subsequent operations. In addition, the first file -- strawberries also contains some unnecessary and repetitive information, which also needs to be precessed at this stage.
 ### drop all NA columns
 ```{r,message=FALSE}
 drop_na_info <- function(df){
@@ -41,8 +43,11 @@ After droping NA columns, we get strawb1 with 10 columns.
 
 
 ### Separate ‘Data Item’ into 4 columns
+Through the observation of the data, we found that 'Data Item' column covers a lot of data we need. There are four types of data in this column and make it messy and long, we need to separate this column into four columns.
 ```{r,message=FALSE}
-strawb1 %<>% separate(col = 'Data Item', into = c("Strawberries", "Items", "Discription", "Units"),sep = ",",fill = "right")
+strawb1 %<>% separate(col = 'Data Item', 
+                      into = c("Strawberries", "Items", "Discription", "Units"),
+                      sep = ",",fill = "right")
 
 distinct(strawb1, Strawberries)
 
@@ -56,6 +61,7 @@ Separate ‘Data Item’ into "Strawberries", "Items", "Discription", "Units".
 
 
 ### Separate ‘Domain’ into 2 columns
+The same as 'Data Item' column, 'Domain' column also contains two sets of data information. 
 ```{r,message=FALSE}
 strawb1 %<>% separate(col = Domain, into = c("dname", "type"), sep = ",", fill = "right")
 
@@ -67,6 +73,7 @@ Separate ‘Domain’ into "dname", "type".
 
 
 ### Separate 'Domain Category' into 2 columns
+There are a lot of information in 'Domain Category' column that needs attention. Firstly, part of the information is repeated with previous column. Secondly, the information contains many unnecessary symbols such as "(",",",")".The main work of the following program is to isolate a small part of the information needed.
 ```{r, warning = FALSE,message=FALSE}
 strawb1 %<>% 
   mutate(Chemicals = `Domain Category`) %>%
@@ -94,6 +101,7 @@ And then clean 'Details' and separate it into 'Chemical Name', "Number". Also ca
 
 
 ### drop useless columns
+After the data cleaning step, the data set looks clearly and we start to try data analysis in R. In the analysis, we found that some columns is not needed. So we dropped these useless columns in this step.
 ```{r,message=FALSE}
 drops <- c("Strawberries", "Domain Category")
 strawb1 <- strawb1[ , !(names(strawb1) %in% drops)]
@@ -102,7 +110,7 @@ Drop "Strawberries", "Domain Category", because it is useless in data analysis.
 
 
 ## data cleaning about pesti.csv
-
+After processing the strawberries file, we begin to deal with pesti.csv. This file has less data, so the data cleaning required is relatively simple.
 ### drop NA rows in pesti.csv and clean it
 ```{r,message=FALSE}
 pesti1 <- pesti %>% rename('Chemical Name' = Pesticide )
@@ -117,6 +125,7 @@ And then rename 'Pesticide' to 'Chemical Name' and captalize all words in 'Chemi
 
 
 ### Define Human Toxins level
+Based on the existing information, we hope to construct a variable to represent human toxin levels.
 ```{r,message=FALSE}
 pesti1 <- pesti1 %>% mutate('Human Toxins' = case_when(
   pesti1$Carcinogen == "known" | pesti1$Neurotoxins== "present" | pesti1$`Developmental or Reproductive Toxins`== "present" ~ "high" ,
@@ -136,6 +145,7 @@ Slight toxic for human: carcinogen= possible/possible or `Hormone Disruptor` = s
 
 
 ## wrangling two datasets
+These two data sets use the same chemical name column(pesticide name) as the join key.
 ```{r,message=FALSE}
 strawbPesti <- inner_join(strawb1, pesti1,by="Chemical Name")
 
@@ -147,6 +157,7 @@ Combine two dataset into strawbPesti.csv by key column 'Chemical Name'. Only kee
 
 
 # Data Visualization
+
 ```{r,message=FALSE}
 pacman::p_load('ggplot2', 'plotly',"dplyr")
 ```
@@ -174,7 +185,16 @@ Then we drop no meaning rows of value. And change value into numeric variable. F
 
 To compare pesticides' toxin level, we can take average value across 2016-1019. We build dataset "strawbPestiAVG".
 
+# Questions
+
+### How Toxic are the chemicals on strawberries for humans?
+
+### How Toxic are the chemicals on strawberries for bees?
+
+These two issues are what our team members intend to start studying. Because the main content of the pes file is the toxins of pesticides, we began to study the degree of toxins to humans and to bees.
+
 ## show all states chemical usage value
+Compared with other states, California has more data, so there are more samples with vlue as high, while Washington state has less data. It can be seen from the figure that the pesticides that are more harmful to humans are mainly distributed in California and Florida.
 ```{r,message=FALSE}
 ggplot(strawbPestiAVG) + 
   geom_point(aes( x= `Chemical Name`, y= Value,col=`Human Toxins`)) + 
@@ -184,6 +204,7 @@ ggplot(strawbPestiAVG) +
 
 
 ## Chemical usage in different states 
+Take California as an example, and list the data graph and plot.
 ```{r,message=FALSE}
 ## choose input by yourself
 pestiToxin <- function(state1){
@@ -197,19 +218,72 @@ pestiToxin <- function(state1){
   geom_bar(mapping = aes(x=`Chemical Name`,y=Value,fill=`Human Toxins`), position = "dodge",stat = "identity")+
   scale_fill_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73"))+
     labs(title = state1)
-  list(bar,ggplotly(bar), bar2+coord_polar())
+  list(bar, bar2+coord_polar())
 }
 
 pestiToxin("CALIFORNIA")
 ```
 
+## How Toxic are the chemicals on strawberries for humans?
+Then let’s look at more specific issues.
+According to the colors shown in the pictures, the hazards of various chemicals can be seen. 
 ```{r}
 Plot <- ggplot(strawbPesti) + geom_point(aes (x= State, y= `Chemical Name`, color= `Human Toxins`)) + labs(title= 'How Toxic are the chemicals on strawberries for humans?') + scale_color_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73")) 
 #colors used are from the color blind palette
-ggplotly(Plot)
+Plot
 #add a note about how we determined human toxins
 ```
+
+
+## How Toxic are the chemicals on strawberries for bees?
+
 ```{r}
 Plot1 <- ggplot(strawbPesti) + geom_point(aes (x= State, y= `Chemical Name`, color= `Bee Toxins`)) + labs(title= 'How Toxic are the chemicals on strawberries for bees?') + scale_color_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73"))
-ggplotly(Plot1)
+Plot1
 ```
+
+## Map of states in USA 
+There are only four states used in data sets, which are shown in colors on the map of the United States.
+```{r,warning=FALSE}
+usamap<-function(){
+  usa_map <- map_data("state")
+  states<-c("California","Florida","Oregon","Washington")
+  region<-tolower(states)
+  tmp<-data.frame(cbind(states,region))
+  gg <- ggplot()
+  gg <- gg + geom_map(data=usa_map, map=usa_map,
+                    aes(long, lat, map_id=region),
+                    color="black", size=0.15, fill=NA)
+  gg <- gg + geom_map(data=tmp, map=usa_map,
+                    aes(fill=states, map_id=region),
+                    color="black", size=0.15)
+  gg
+}
+usamap()
+```
+
+## Map of selected states
+Take California as an example, we use a custom function to display a map of California.
+```{r,warning=FALSE}
+map<-function(statename){
+  m<-map_data("county",statename)
+  
+  p<-ggplot(data=m,
+            mapping=aes(x=long,y=lat,group=group,fill=region))
+  p+geom_polygon()+guides(fill=FALSE)+ggtitle(statename)
+  
+}
+map("California")
+```
+
+
+# Shiny 
+Shiny is an R package that makes it easy to build interactive web apps straight from R.
+
+In the shiny we made, click the button in the upper left corner to switch to view the data table, data icon, and map. In the data table, you can select the required data according to the state, year, and type. This interactive shiny file provides visual data content. Bring a more convenient and in-depth experience to those who view the data.
+```{r,  out.width="100%", fig.cap="A shiny App."}
+
+knitr::include_graphics("shinypic.png")
+
+```
+
