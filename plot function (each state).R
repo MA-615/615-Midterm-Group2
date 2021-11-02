@@ -1,9 +1,13 @@
 ## data
-strawbPesti <-read.csv("https://raw.githubusercontent.com/MA-615/615-Midterm-Group2/main/data/strawbPesti.csv")
+pacman::p_load('ggplot2', 'plotly',"dplyr")
+library(tidyverse)
+library(magrittr)
+
+strawbPesti <-read_csv("data/strawbPesti.csv")
 strawbPesti <- arrange(strawbPesti,`Chemical Name`)
 strawbPesti1 <- strawbPesti[,-13]
 strawbPesti2 <- strawbPesti1[,c(2,4,7,12,13,20)]
-strawbPesti3 <- filter(strawbPesti2, Discription==" MEASURED IN LB")
+strawbPesti3 <- filter(strawbPesti2, Discription=="MEASURED IN LB")
 strawbPesti4 <- filter(strawbPesti3, Value !="(D)")
 strawbPesti4$Value <- as.numeric(sub(",", "", strawbPesti4$Value, fixed = TRUE))
 
@@ -27,3 +31,4 @@ pestiToxin <- function(state1){
     labs(title = state1)
   list(bar,bar2+coord_polar())
 }
+#pestiToxin("CALIFORNIA")
