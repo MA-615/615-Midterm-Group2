@@ -196,7 +196,6 @@ Then we drop no meaning rows of value. And change value into numeric variable. F
 
 To compare pesticides' toxin level, we can take average value across 2016-1019. We build dataset "strawbPestiAVG".
 
-
 ## Map of states in USA 
 There are only four states used in data sets, which are shown in colors on the map of the United States.
 ```{r,warning=FALSE}
@@ -228,7 +227,9 @@ map<-function(statename){
   p+geom_polygon()+guides(fill=FALSE)+ggtitle(statename)
   
 }
+
 map("California")
+
 ```
 
 
@@ -252,8 +253,7 @@ ggplot(strawbPestiAVG) +
 
 ## Chemical usage in different states 
 
-Take California as an example, and list the data graph and plot.
-```{r,message=FALSE}
+```{r,message=FALSE,out.width="80%"}
 ## choose input by yourself
 pestiToxin <- function(state1){
   data <- filter(strawbPestiAVG,State==state1)
@@ -265,11 +265,14 @@ pestiToxin <- function(state1){
   bar2 <- ggplot(data)+
   geom_bar(mapping = aes(x=`Chemical Name`,y=Value,fill=`Human Toxins`), position = "dodge",stat = "identity")+
   scale_fill_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73"))+
-    labs(title = state1)
-  list(bar, bar2+coord_polar())
+    labs(title = state1) 
+  bar
+  #list(bar, bar2+coord_polar())
 }
 
 pestiToxin("CALIFORNIA")
+pestiToxin("FLORIDA")
+pestiToxin("WASHINGTON")
 ```
 
 ## How Toxic are the chemicals on strawberries for humans?
@@ -280,7 +283,6 @@ According to the colors shown in the pictures, the hazards of various chemicals 
 Plot <- ggplot(strawbPesti) + geom_point(aes (x= State, y= `Chemical Name`, color= `Human Toxins`)) + labs(title= 'How Toxic are the chemicals on strawberries for humans?') + scale_color_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73")) 
 #colors used are from the color blind palette
 Plot
-#add a note about how we determined human toxins
 ```
 
 
