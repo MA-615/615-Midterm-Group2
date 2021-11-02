@@ -65,10 +65,6 @@ ggplotly(Plot)
   - Filtered out some entries that were missing values
 - Left us with three states: California, Florida, Washington
 
-```{r}
-head(strawbPestiAVG)
-```
-
 ## Chemcial usage in Lbs
 ```{r, echo=FALSE}
 pestiToxin("CALIFORNIA")
