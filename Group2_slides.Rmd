@@ -1,5 +1,5 @@
 ---
-title: "Group2_slides"
+title: "Group2 Strawberry Data"
 author: "Shuting Li, Lauren Temple, Zening Ye, Keliang Xu"
 date: "11/1/2021"
 output: ioslides_presentation
@@ -7,7 +7,7 @@ output: ioslides_presentation
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
-pacman::p_load('ggplot2', 'plotly', 'dplyr', 'magrittr', 'tidyverse')
+pacman::p_load('ggplot2', 'plotly', 'dplyr', 'magrittr', 'tidyverse', 'maps')
 source(file= 'Group2-EDAscript.R')
 ```
 
@@ -17,38 +17,56 @@ source(file= 'Group2-EDAscript.R')
 - Each chemicals human toxicity level
 - Amount of each chemical being used
 
-```{r}
-#can insert the map here
+## Definition of Toxicity
+- Highly toxic for humans
+  - Carcinogen = known or 
+  - Neurotoxins = present or 
+  - Developmental or Reproductive Toxins = present
+- Moderately toxic for human
+  - Carcinogen = probable/possible and 
+  - Hormone Disruptor = suspect
+- Slightly toxic for human
+  - Carcinogen= possible/possible or 
+  - Hormone Disruptor = suspect
+  - Only one not both
+
+## Map
+
+```{r, echo=FALSE}
+usamap<-function(){
+  usa_map <- map_data("state")
+  states<-c("California","Florida","Oregon","Washington")
+  region<-tolower(states)
+  tmp<-data.frame(cbind(states,region))
+  gg <- ggplot()
+  gg <- gg + geom_map(data=usa_map, map=usa_map,
+                    aes(long, lat, map_id=region),
+                    color="black", size=0.15, fill=NA)
+  gg <- gg + geom_map(data=tmp, map=usa_map,
+                    aes(fill=states, map_id=region),
+                    color="black", size=0.15)
+  gg
+}
 ```
 
+```{r}
+usamap()
+```
 
 ## Plot of Chemical Use by State
 
 ```{r}
-Plot <- ggplot(strawbPesti) + geom_point(aes (x= State, y= `Chemical Name`, color= `Human Toxins`)) + labs(title= 'Chemicals Used by Each State') + scale_color_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73")) 
 ggplotly(Plot)
 ```
-- Human toxicity level was determined based off of carcinogen data
 
 ## How much of these chemicals are being used?
 
 - Focused on chemical applications measured in lb's
   - Filtered out some entries that were missing values
 - Left us with three states: California, Florida, Washington
-```{r, echo=FALSE}
-pestiToxin <- function(state1){
-  data <- filter(strawbPestiAVG,State==state1)
-  bar <- ggplot(data)+
-  geom_bar(mapping = aes(x=`Chemical Name`,y=Value,fill=`Human Toxins`), position = "dodge",stat = "identity")+
-  scale_fill_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73"))+
-    labs(title = state1)+
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-  bar2 <- ggplot(data)+
-  geom_bar(mapping = aes(x=`Chemical Name`,y=Value,fill=`Human Toxins`), position = "dodge",stat = "identity")+
-  scale_fill_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73"))+
-    labs(title = state1)
-  list(bar,ggplotly(bar), bar2+coord_polar())
-}
+
+```{r}
+head(strawbPestiAVG)
 ```
 
 ## Chemcial usage in Lbs
@@ -66,3 +84,14 @@ pestiToxin("FLORIDA")
 pestiToxin("WASHINGTON")
 ```
 
+## Captan
+- Captan is a highly toxic chemical and it is used in large amounts
+- Probable carcinogen
+- Short term dermal exposure may cause dermatitis and conjunctivitis in humans
+- Ingestion of large quantities of captan may
+cause vomiting and diarrhea in humans
+- Long term effects on humans are unknown
+
+## Data Sources
+- https://quickstats.nass.usda.gov/#56E84525-1350-34A1-9ED7-27363BD5A7D3
+- https://www.epa.gov/sites/default/files/2016-09/documents/captan.pdf

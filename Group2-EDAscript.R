@@ -192,7 +192,10 @@ pestiToxin("FLORIDA")
 pestiToxin("WASHINGTON")
 
 
-Plot <- ggplot(strawbPesti) + geom_point(aes (x= State, y= `Chemical Name`, color= `Human Toxins`)) + labs(title= 'Chemicals Used by Each State') + scale_color_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73")) 
+Plot <- ggplot(strawbPesti) + geom_point(aes (x= State, y= `Chemical Name`, color= `Human Toxins`)) + 
+  labs(title= 'Chemicals Used by Each State') + 
+  scale_color_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73")) +
+  theme_classic()
 #colors used are from the color blind palette
 ggplotly(Plot)
 #add a note about how we determined human toxins
