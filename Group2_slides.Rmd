@@ -1,0 +1,68 @@
+---
+title: "Group2_slides"
+author: "Shuting Li, Lauren Temple, Zening Ye, Keliang Xu"
+date: "11/1/2021"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+pacman::p_load('ggplot2', 'plotly', 'dplyr', 'magrittr', 'tidyverse')
+source(file= 'Group2-EDAscript.R')
+```
+
+## Overview
+
+- How toxic are the chemicals on our strawberries
+- Each chemicals human toxicity level
+- Amount of each chemical being used
+
+```{r}
+#can insert the map here
+```
+
+
+## Plot of Chemical Use by State
+
+```{r}
+Plot <- ggplot(strawbPesti) + geom_point(aes (x= State, y= `Chemical Name`, color= `Human Toxins`)) + labs(title= 'Chemicals Used by Each State') + scale_color_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73")) 
+ggplotly(Plot)
+```
+- Human toxicity level was determined based off of carcinogen data
+
+## How much of these chemicals are being used?
+
+- Focused on chemical applications measured in lb's
+  - Filtered out some entries that were missing values
+- Left us with three states: California, Florida, Washington
+```{r, echo=FALSE}
+pestiToxin <- function(state1){
+  data <- filter(strawbPestiAVG,State==state1)
+  bar <- ggplot(data)+
+  geom_bar(mapping = aes(x=`Chemical Name`,y=Value,fill=`Human Toxins`), position = "dodge",stat = "identity")+
+  scale_fill_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73"))+
+    labs(title = state1)+
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  bar2 <- ggplot(data)+
+  geom_bar(mapping = aes(x=`Chemical Name`,y=Value,fill=`Human Toxins`), position = "dodge",stat = "identity")+
+  scale_fill_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73"))+
+    labs(title = state1)
+  list(bar,ggplotly(bar), bar2+coord_polar())
+}
+```
+
+## Chemcial usage in Lbs
+```{r, echo=FALSE}
+pestiToxin("CALIFORNIA")
+```
+
+## Chemcial usage in Lbs
+```{r, echo=FALSE}
+pestiToxin("FLORIDA")
+```
+
+## Chemcial usage in Lbs
+```{r, echo=FALSE}
+pestiToxin("WASHINGTON")
+```
+
