@@ -25,5 +25,5 @@ pestiToxin <- function(state1){
     geom_bar(mapping = aes(x=`Chemical Name`,y=Value,fill=`Human Toxins`), position = "dodge",stat = "identity")+
     scale_fill_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73"))+
     labs(title = state1)
-  list(bar,ggplotly(bar), bar2+coord_polar())
+  list(bar,bar2+coord_polar())
 }
