@@ -73,20 +73,38 @@ ggplotly(BeePlot)
   - Filtered out some entries that were missing values
 - Left us with three states: California, Florida, Washington
 
-## Chemcial usage in Lbs
+## Chemcial usage in Lbs (Humans)
 ```{r, echo=FALSE}
 pestiToxin("CALIFORNIA")
 ```
 
-## Chemcial usage in Lbs
+## Chemcial usage in Lbs (Humans)
 ```{r, echo=FALSE}
 pestiToxin("FLORIDA")
 ```
 
-## Chemcial usage in Lbs
+## Chemcial usage in Lbs (Humans)
 ```{r, echo=FALSE}
 pestiToxin("WASHINGTON")
 ```
+
+## Now looking at these plots for Bee Toxins
+
+## Chemical usage in Lbs (Bees)
+```{r}
+BeepestiToxin("FLORIDA")
+```
+
+## Chemical usage in Lbs (Bees)
+```{r}
+BeepestiToxin("WASHINGTON")
+```
+
+## Chemical usage in Lbs (Bees)
+```{r}
+BeepestiToxin("CALIFORNIA")
+```
+
 
 ## Captan
 - Captan is a highly toxic chemical and it is used in large amounts
@@ -95,7 +113,9 @@ pestiToxin("WASHINGTON")
 - Ingestion of large quantities of captan may
 cause vomiting and diarrhea in humans
 - Long term effects on humans are unknown
+- Non-toxic for bees
 
 ## Data Sources
 - https://quickstats.nass.usda.gov/#56E84525-1350-34A1-9ED7-27363BD5A7D3
 - https://www.epa.gov/sites/default/files/2016-09/documents/captan.pdf
+- http://www.npic.orst.edu/ingred/captan.html

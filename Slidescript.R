@@ -249,14 +249,15 @@ pacman::p_load('ggplot2', 'plotly',"dplyr")
 strawbPesti <- arrange(strawbPesti,`Chemical Name`)
 #colnames(strawbPesti)
 strawbPesti1 <- strawbPesti[,-13]
-strawbPesti2 <- strawbPesti1[,c(2,4,7,12,13,20)]
+strawbPesti2 <- strawbPesti1[,c(2,4,7,12,13,19,20)]
 strawbPesti3 <- filter(strawbPesti2, Discription==" MEASURED IN LB")
 strawbPesti4 <- filter(strawbPesti3, Value !="(D)")
 strawbPesti4$Value <- as.numeric(sub(",", "", strawbPesti4$Value, fixed = TRUE))
 
 strawbPestiAVG <- strawbPesti4 %>%
-  group_by(State, `Chemical Name`,`Human Toxins`) %>%
+  group_by(State, `Chemical Name`,`Human Toxins`, `Bee Toxins`) %>%
   summarise(Value,Value=mean(Value))
+
 
 
 
@@ -312,5 +313,20 @@ Plot <- ggplot(strawbPesti) + geom_point(aes (x= State, y= `Chemical Name`, colo
 #colors used are from the color blind palette
 Plot
 
-
-
+BeepestiToxin <- function(state1){
+  data <- filter(strawbPestiAVG,State==state1)
+  bar <- ggplot(data)+
+    geom_bar(mapping = aes(x=`Chemical Name`,y=Value,fill=`Bee Toxins`), position = "dodge",stat = "identity")+
+    scale_fill_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73"))+
+    labs(title = state1)+
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  bar2 <- ggplot(data)+
+    geom_bar(mapping = aes(x=`Chemical Name`,y=Value,fill=`Bee Toxins`), position = "dodge",stat = "identity")+
+    scale_fill_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73"))+
+    labs(title = state1) 
+  bar
+  #list(bar, bar2+coord_polar())
+}
+BeepestiToxin("FLORIDA")
+BeepestiToxin("WASHINGTON")
+BeepestiToxin("CALIFORNIA")
