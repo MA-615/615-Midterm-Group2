@@ -300,9 +300,9 @@ pestiToxin("CALIFORNIA")
 
 
 
-Plot <- ggplot(strawbPesti) + geom_point(aes (x= State, y= `Chemical Name`, color= `Bee Toxins`)) + labs(title= 'How Toxic are the chemicals on strawberries for bees?') + scale_color_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73")) 
+BeePlot <- ggplot(strawbPesti) + geom_point(aes (x= State, y= `Chemical Name`, color= `Bee Toxins`)) + labs(title= 'How Toxic are the chemicals on strawberries for bees?') + scale_color_manual(values = c("high" = "#D55E00", "moderate"="#E69F00", "slight"="#009E73")) 
 #colors used are from the color blind palette
-Plot
+BeePlot
 
 
 ## How Toxic are the chemicals on strawberries for humans?

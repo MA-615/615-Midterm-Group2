@@ -54,11 +54,18 @@ usamap()
 ```
 
 
-## Plot of Chemical Use by State
+## How Toxic are Chemcials being used for Humans?
 
 ```{r}
 ggplotly(Plot)
 ```
+
+## How Toxic are Chemicals being used for Bees?
+
+```{r}
+ggplotly(BeePlot)
+```
+
 
 ## How much of these chemicals are being used?
 
