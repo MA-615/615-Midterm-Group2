@@ -375,10 +375,10 @@ Because we completed this project in a short time, we learned a lot of knowledge
 ### What we learn?
 
 We are more familiar with R's data processing program, and apply the knowledge in class to practical problems. At the same time, data visualization is also our main focus this time. The data is reflected in tables, charts, maps and other aspects.
-
 The realization of shiny files is another brand new attempt. The use of shiny files can realize interactive data visualization.
 
-At the same time, the experience of group members working together to complete mid-term assignments also allows us to learn from the group members and get the experience of cooperation.
+
+At the same time, the experience of group members working together to complete mid-term assignments also allows us to learn from the group members and get the experience of cooperation. We use GitHub to complete the work together. Our group communicated through the team, and the news to each other was very quick. In terms of task allocation, we are all able to complete our respective tasks well and cooperate with each other.
 
 ### What needs to be improved?
 
