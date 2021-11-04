@@ -3,8 +3,13 @@ library(shinydashboard)
 library(DT)
 library(tidyverse)
 library(plotly)
+library(maps)
+library(leaflet)
+library(jpeg)
+library(geojsonio)
 
 
+# Load the data we will use for the shiny dashboard
 load("AVG.rda")
 df1 <- read_csv("total.csv")
 df2 <- strawbPestiAVG
@@ -23,10 +28,11 @@ df1$type <- as.character(df1$type)
 sidebar <- dashboardSidebar(
   sidebarMenu(
 
-        menuItem("INTRODUCTION", tabName = "introl", icon = icon("info-circle")
+    menuItem("INTRODUCTION", tabName = "introl", icon = icon("info-circle")
         ),
-    menuItem("MAP", icon = icon("map", tabName = "map")
-    ),
+    
+    menuItem("MAP", icon = icon("map"), tabName = "map"
+             ),
     menuItem("CHART", icon = icon("signal"), tabName = "chart",
              
              menuSubItem("TABLE", icon = icon("th-list",  lib = "glyphicon"), tabName = "list"),
@@ -42,9 +48,15 @@ sidebar <- dashboardSidebar(
 body <- dashboardBody(
   
   tabItems(
-    tabItem(tabName = "introl"),
+    tabItem(tabName = "introl",
+            h1("Welcome to Use Strawberry Data System!"),
+            h4("This App might help you to explore the strawberry data you want for the United States"),
+            h4("Please Keep in Mind, the Data We Have Currently Only Work for Some States! Sorry for Any Inconvience."),
+            imageOutput("pic")
+            ),
     
     tabItem(tabName = "map",
+            uiOutput("map")
     ),
     
     tabItem(tabName = "chart", "This Page Show Two Different Chart for Data Visualization"),
@@ -57,7 +69,7 @@ body <- dashboardBody(
               column(4,
                      selectInput("year", "Year", c("All", unique(df1$Year)))
               ),
-              column(4, selectInput("type", "Type", c("All", unique(df1$type)))
+              column(4, selectInput("type", "Type", c("All", "FUNGICIDE", "HERBICIDE", "INSECTICIDE","OTHER"))
               ),
               column(4,
                      selectInput("des", "Description", c("All", unique(df1$Description))),
@@ -94,7 +106,54 @@ server <- function(input, output, session) {
   dta2 <- df2
   dta3 <- df3
   
-  # output: list
+  # output: pic
+  output$pic <- renderImage(
+    list(src = "Strawberries.jpg", height = "685", width = "1375", style="display: block; margin-left: auto; margin-right: auto;"), 
+    deleteFile = F
+  )
+  
+  # output: map
+  output$map <- renderUI({
+    states <- geojson_read( 
+      x = "https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json"
+      , what = "sp"
+    )
+    
+    bins <- c(0, 10, 20, 50, 100, 200, 500, 1000, Inf)
+    pal <- colorBin("YlOrRd", domain = states$density, bins = bins)
+    
+    labels <- sprintf(
+      "<strong>%s</strong><br/>%g people / mi<sup>2</sup>",
+      states$name, states$density
+    ) %>% lapply(htmltools::HTML)
+    
+    leaflet(states, height = 850) %>%
+      setView(-96, 37.8, 4) %>%
+      addProviderTiles("MapBox", options = providerTileOptions(
+        id = "mapbox.light",
+        accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN'))) %>%
+      addPolygons(
+        fillColor = ~pal(density),
+        weight = 1.75,
+        opacity = 0.75,
+        color = "white",
+        dashArray = "3",
+        fillOpacity = 0.75,
+        highlightOptions = highlightOptions(
+          weight = 5,
+          color = "#666",
+          dashArray = "",
+          fillOpacity = 0.7,
+          bringToFront = TRUE),
+        label = labels,
+        labelOptions = labelOptions(
+          style = list("font-weight" = "normal", padding = "3px 8px"),
+          textsize = "15px",
+          direction = "auto")) %>%
+      addProviderTiles(providers$CartoDB.Voyager)
+  })
+  
+   # output: list
   output$list <- DT::renderDataTable({
     if (input$state != "All") {
       dta1 <- dta1[dta1$State == input$state,]
@@ -103,6 +162,7 @@ server <- function(input, output, session) {
       dta1<- dta1[dta1$Year == input$year,]
     }
     if (input$type != "All") {
+      dta1 <- dta1 %>% filter(!is.na(type))
       dta1 <- dta1[dta1$type == input$type,]
     }
     if (input$des != "All") {
@@ -118,22 +178,17 @@ server <- function(input, output, session) {
     if (input$state1 != "All") {
       if (input$state1 == "CALIFORNIA" | input$state1 == "FLORIDA" | input$state1 == "WASHINGTON") {
         dta2 <- dta2 %>% filter(State == input$state1)
-        bar1 <- plot_ly(dta2, x=~`Chemical Name`,y=~Value, color = ~`Human Toxins`, type = "bar", height = 1100)
-        bar2 <- plot_ly(dta2, labels =~`Chemical Name`, values =~Value, color = ~`Human Toxins`, type = "pie", height = 500) # use box()
-        subplot(
-          ggplotly(bar1), ggplotly(bar2))
-        
+        plot_ly(dta2, x=~`Chemical Name`,y=~Value, color = ~replace(`Human Toxins`, is.na(`Human Toxins`), "NA"), type = "bar", height = 600)
       } else {print("NO DATA AVALIABLE AT THIS TIME")}
     }
     
     else if (input$state1 == "All") {
-      plot_ly(data = dta3, x= ~State, y= ~`Chemical Name`, color= ~`Human Toxins`, type = "scatter", height = 1100)
+      plot_ly(data = dta3, x= ~State, y= ~`Chemical Name`, color= ~replace(`Human Toxins`, is.na(`Human Toxins`), "NA"), type = "scatter", height = 800)
     }
   }
   )
   
 }
-
 
 shinyApp(ui = ui, server = server)
 
