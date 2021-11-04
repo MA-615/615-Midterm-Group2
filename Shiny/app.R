@@ -51,7 +51,8 @@ body <- dashboardBody(
     tabItem(tabName = "introl",
             h1("Welcome to Use Strawberry Data System!"),
             h4("This App might help you to explore the strawberry data you want for the United States"),
-            h4("Please Keep in Mind, the Data We Have Currently Only Work for Some States! Sorry for Any Inconvience."),
+            h4("Please kepp in mind, the data we have currently work only for a few states!"),
+            h4("Recommend: Using Your local browser to open it."),
             imageOutput("pic")
             ),
     
@@ -178,7 +179,7 @@ server <- function(input, output, session) {
     if (input$state1 != "All") {
       if (input$state1 == "CALIFORNIA" | input$state1 == "FLORIDA" | input$state1 == "WASHINGTON") {
         dta2 <- dta2 %>% filter(State == input$state1)
-        plot_ly(dta2, x=~`Chemical Name`,y=~Value, color = ~replace(`Human Toxins`, is.na(`Human Toxins`), "NA"), type = "bar", height = 600)
+        plot_ly(dta2, x=~`Chemical Name`,y=~Value, color = ~replace(`Human Toxins`, is.na(`Human Toxins`), "NA"), type = "bar", height = 700)
       } else {print("NO DATA AVALIABLE AT THIS TIME")}
     }
     
